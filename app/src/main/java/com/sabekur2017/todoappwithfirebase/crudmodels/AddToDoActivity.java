@@ -23,7 +23,7 @@ public class AddToDoActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     String Database_Path = "AllTodoList";
-    EditText title,description;
+    private EditText title,description;
     Button saveBtn;
 
     @Override
@@ -31,8 +31,6 @@ public class AddToDoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_to_do);
         mAuth = FirebaseAuth.getInstance();
-        // for data upload with current clild
-        //currentUser = mAuth.getCurrentUser();
         //Assign FirebaseDatabase instance with Root database name
         mDatabase= FirebaseDatabase.getInstance().getReference(Database_Path);
         ////////////// alll view //////////////////////////
@@ -70,7 +68,7 @@ public class AddToDoActivity extends AppCompatActivity {
             }
         }
     }
-    public boolean validateFrom(){
+    public  boolean validateFrom(){
         boolean TodoData=true;
         String title_data=title.getText().toString().trim();
         String description_data=description.getText().toString().trim();

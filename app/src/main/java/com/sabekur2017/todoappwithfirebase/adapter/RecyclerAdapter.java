@@ -1,6 +1,7 @@
 package com.sabekur2017.todoappwithfirebase.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sabekur2017.todoappwithfirebase.R;
+import com.sabekur2017.todoappwithfirebase.crudmodels.TodoDetailsActivity;
 import com.sabekur2017.todoappwithfirebase.models.Todo;
 
 import java.util.List;
@@ -77,6 +79,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyCust
             enter_this_post.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    int position=getAdapterPosition();
+                    Todo todo=todoList.get(position);
+                    context=v.getContext();
+                    context.startActivity(new Intent(context, TodoDetailsActivity.class).putExtra("detailstodo",todo));
+
                     Toast.makeText(context,"Details Click",Toast.LENGTH_LONG).show();
 
                 }
@@ -84,6 +91,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyCust
             edit_post.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(editIconClickListener !=null){
+                        int position=getAdapterPosition();
+                        if(position !=RecyclerView.NO_POSITION){
+                            editIconClickListener.onEditClick(todoList.get(position).getCurrentPushId());
+                        }
+                    }
                     Toast.makeText(context,"Edit Click",Toast.LENGTH_LONG).show();
 
                 }
@@ -91,6 +104,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyCust
             delete_post.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(deleteIconClickListener !=null){
+                        int position=getAdapterPosition();
+                        if(position !=RecyclerView.NO_POSITION){
+                            deleteIconClickListener.onDeleteClick(todoList.get(position).getCurrentPushId());
+                        }
+                    }
                     Toast.makeText(context,"Delate  Click",Toast.LENGTH_LONG).show();
 
 

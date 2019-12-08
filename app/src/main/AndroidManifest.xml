@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".crudmodels.AddToDoActivity"></activity>
+        <activity android:name=".crudmodels.TodoDetailsActivity"></activity>
+        <activity android:name=".crudmodels.AddToDoActivity" />
         <activity android:name=".ResetActivity" />
         <activity android:name=".SignupActivity" />
         <activity android:name=".LoginActivity">

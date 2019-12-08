@@ -1,17 +1,25 @@
 package com.sabekur2017.todoappwithfirebase;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     RecyclerAdapter recyclerAdapter;
     ArrayList<Todo> todoArrayList=new ArrayList<>();
+    private EditText titile_update,description_update;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setMessage("Data loading");
         progressDialog.setCancelable(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -103,6 +113,22 @@ public class MainActivity extends AppCompatActivity {
                 recyclerAdapter=new RecyclerAdapter(MainActivity.this,todoArrayList);
                 recyclerView.setAdapter(recyclerAdapter);
                 progressDialog.dismiss();
+                recyclerAdapter.setOnEditIconClickListener(new RecyclerAdapter.OnEditIconClickListener() {
+                    @Override
+                    public void onEditClick(String parentName) {
+                        editThisChild(parentName);
+
+                    }
+                });
+                recyclerAdapter.setOnDeleteIconClickListener(new RecyclerAdapter.OnDeleteIconClickListener() {
+                    @Override
+                    public void onDeleteClick(String parentName) {
+                        progressDialog.setMessage("Deleting ....");
+                        progressDialog.setCancelable(false);
+                        deleteThisChild(parentName);
+
+                    }
+                });
             }
 
             @Override
@@ -158,6 +184,107 @@ public class MainActivity extends AppCompatActivity {
         Intent startIntent=new Intent(MainActivity.this,LoginActivity.class);
         startActivity(startIntent);
         finish();
+    }
+    private void editThisChild(final String parentName){
+        mDatabase.child(parentName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getChildrenCount() >0){
+                    Todo todo=dataSnapshot.getValue(Todo.class);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                    final AlertDialog alertDialog = alertDialogBuilder.create();
+                    LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+                    ConstraintLayout constraintLayout=(ConstraintLayout)inflater.inflate(R.layout.update_single_todo_post,null,false);
+                    titile_update=constraintLayout.findViewById(R.id.update_title_edt);
+                    description_update=constraintLayout.findViewById(R.id.update_description_edt);
+                    final Button update_btn=constraintLayout.findViewById(R.id.update_todo_btn);
+                    final Button cancel_btn=constraintLayout.findViewById(R.id.cancel_update_btn);
+                    titile_update.setText(todo.getTitle());
+                    description_update.setText(todo.getDescription());
+                    alertDialogBuilder.setCancelable(true);
+                    alertDialog.setView(constraintLayout);
+                    alertDialog.show();
+                    update_btn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if(validateFrom()){
+                                String title_str=titile_update.getText().toString().trim();
+                                String description_str=description_update.getText().toString().trim();
+                                String userCurrentUid=mAuth.getCurrentUser().getUid();
+                                Todo todo=new Todo();
+                                todo.setTitle(title_str);
+                                todo.setDescription(description_str);
+                                todo.setCurrentPushId(parentName);
+                                todo.setCurrentUserId(userCurrentUid);
+                                if(mAuth.getCurrentUser() !=null){
+                                    mDatabase.child(parentName).setValue(todo, new DatabaseReference.CompletionListener() {
+                                        @Override
+                                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                            if(databaseError==null){
+                                                Toast.makeText(MainActivity.this,"Data saved successfully",Toast.LENGTH_LONG).show();
+                                                // todo:need to fix
+                                                //finish();
+                                                alertDialog.dismiss();
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+
+                        }
+                    });
+                    cancel_btn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            alertDialog.cancel();
+                        }
+                    });
+
+
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+    public  boolean validateFrom(){
+        boolean TodoData=true;
+        String title_data=titile_update.getText().toString().trim();
+        String description_data=description_update.getText().toString().trim();
+        if(TextUtils.isEmpty(title_data)){
+            titile_update.setError("Enter title");
+            return false;
+        }else {
+            TodoData=true;
+            titile_update.setError(null);
+
+        }
+        if(TextUtils.isEmpty(description_data)){
+            description_update.setError("Enter description");
+            return false;
+        }else {
+            TodoData=true;
+            description_update.setError(null);
+        }
+        return TodoData;
+    }
+    private void deleteThisChild(final String parentName){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("Do you want to delete this post");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mDatabase.child(parentName).removeValue();
+
+            }
+        }).setNegativeButton("NO",null);
+        builder.show();
     }
 
 
