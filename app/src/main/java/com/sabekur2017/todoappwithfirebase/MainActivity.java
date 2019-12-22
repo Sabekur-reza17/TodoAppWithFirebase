@@ -3,6 +3,7 @@ package com.sabekur2017.todoappwithfirebase;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,18 +37,16 @@ import com.google.firebase.database.ValueEventListener;
 import com.sabekur2017.todoappwithfirebase.adapter.RecyclerAdapter;
 import com.sabekur2017.todoappwithfirebase.crudmodels.AddToDoActivity;
 import com.sabekur2017.todoappwithfirebase.models.Todo;
+import com.sabekur2017.todoappwithfirebase.utils.ConnectivityReceiver;
+import com.sabekur2017.todoappwithfirebase.utils.MyApplication;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ConnectivityReceiver.ConnectivityReceiverListener{
     private static final String TAG = "main";
-
-
-
-
 
     private Toolbar mToolBar;
     private NavigationView navigationView;
@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Manually checking internet connection
+        checkConnection();
+
         //////////////////// firebase ////////////////////////
         mAuth = FirebaseAuth.getInstance();
 //        String pushidOfTodo=mDatabase.push().getKey();
@@ -156,18 +159,9 @@ public class MainActivity extends AppCompatActivity {
     }
     private void UserMenuSelector(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.nav_faq:
 
-                Toast.makeText(this,"Go to faq Activity",Toast.LENGTH_LONG).show();
-                break;
             case R.id.nav_about_us:
-
                 Toast.makeText(this,"Go to about us activity Activity",Toast.LENGTH_LONG).show();
-                break;
-            case R.id.nav_faq_from_tenant:
-
-
-                Toast.makeText(this,"Go to Faq tenant Question From Tenant Activity", Toast.LENGTH_LONG).show();
                 break;
 
             case R.id.nav_log_out:
@@ -287,5 +281,42 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /////////////////////////// check internet connection ///////////////////////////////////
+    // Method to manually check connection status
+    private void checkConnection() {
+        boolean isConnected = ConnectivityReceiver.isConnected(this);
+        showSnack(isConnected);
+    }
+    // Showing the status in Snackbar
+    private void showSnack(boolean isConnected) {
+        String message;
+        int color;
+        if (isConnected) {
+            message = "Good! Connected to Internet";
+            color = Color.WHITE;
+        } else {
+            message = "Sorry! Not connected to internet";
+            color = Color.RED;
+        }
 
+        Snackbar snackbar = Snackbar
+                .make(findViewById(R.id.floatingActionButton), message, Snackbar.LENGTH_LONG);
+
+        View sbView = snackbar.getView();
+        TextView textView = (TextView) sbView.findViewById(com.google.android.material.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snackbar.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // register connection status listener
+        MyApplication.getInstance().setConnectivityListener(this);
+    }
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        showSnack(isConnected);
+    }
 }

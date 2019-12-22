@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class SignupActivity extends AppCompatActivity {
     private EditText sign_email_edt,sign_pass_edt;
-    private Button sign_RegisterBtn,sign_resetBtn,sing_UpBtn;
+    private Button sign_RegisterBtn;
     private ProgressBar sign_progressBar;
     private FirebaseAuth firebaseAuth;
 
@@ -30,22 +30,9 @@ public class SignupActivity extends AppCompatActivity {
         sign_email_edt=findViewById(R.id.sign_up_mail_edt);
         sign_pass_edt=findViewById(R.id.sign_up_pass_edt);
         sign_RegisterBtn=findViewById(R.id.sign_up_btn);
-        sign_resetBtn=findViewById(R.id.sign_up_reset_btn);
-        sing_UpBtn=findViewById(R.id.sign__btn);
         sign_progressBar=findViewById(R.id.sign_progressBar);
         firebaseAuth = FirebaseAuth.getInstance();
-        sign_resetBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SignupActivity.this.startActivity(new Intent(SignupActivity.this, ResetActivity.class));
-            }
-        });
-        sing_UpBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SignupActivity.this.finish();
-            }
-        });
+
         sign_RegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

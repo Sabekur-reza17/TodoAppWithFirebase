@@ -44,6 +44,7 @@
                 android:layout_marginLeft="8dp"
                 android:id="@+id/detailsActivity_btn"
                 android:text="Details"
+                android:background="@drawable/custom_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
@@ -52,6 +53,7 @@
                 android:layout_marginLeft="8dp"
                 android:id="@+id/update_todo"
                 android:text="update"
+                android:background="@drawable/custom_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
@@ -60,6 +62,7 @@
                 android:layout_marginLeft="8dp"
                 android:id="@+id/delete_todo"
                 android:text="delete"
+                android:background="@drawable/custom_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
